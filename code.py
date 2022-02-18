@@ -8,12 +8,13 @@
 
 # technically a midi note can be a number or a string. Let's just deal with numbers for now.
 
-# CV outputs are traditionally 1V per octave which means that this should be linear. 
+# CV outputs are traditionally 1V per octave which means that this should be linear.
 # Just convert number to the right scale and then just need to amplify to the correct voltage range and it should work
 
 import usb_midi
 import adafruit_midi
 import time
+#note - these must be imported like this
 from adafruit_midi.control_change import ControlChange
 from adafruit_midi.note_off import NoteOff
 from adafruit_midi.note_on import NoteOn
@@ -33,11 +34,11 @@ note_pins = [digitalio.DigitalInOut(board.GP0),
         digitalio.DigitalInOut(board.GP4),
         digitalio.DigitalInOut(board.GP5),
         digitalio.DigitalInOut(board.GP6),]
-        
+
 for pin in note_pins:
     pin.direction = digitalio.Direction.OUTPUT
 
-#note only need 7 bits as midi is 7 bits.    
+#note only need 7 bits as midi is 7 bits.
 velocity_pins = [digitalio.DigitalInOut(board.GP10),
         digitalio.DigitalInOut(board.GP11),
         digitalio.DigitalInOut(board.GP12),
@@ -53,7 +54,7 @@ for pin in velocity_pins:
 #not doing any scaling as 7 bits in and a 7 bit DAC. However, leaving this here incase we want to do any jiggery-pokery
 def scale_note(number):
     return number
-    
+
 def output(number, pins):
     #how to avoid 'blips'?
     #probably just start at the lowest as switch a bit at a time
@@ -63,11 +64,19 @@ def output(number, pins):
             pins[i].value = True
         else:
             pins[i].value = False
-            
+
+for i in range(127):
+    print("testing: ", i)
+
+    output(i, note_pins)
+    output(i, velocity_pins)
+    time.sleep(0.5)
+
 print("running")
 while True:
     msg = usb_midi.receive()
     if msg is not None:
+        print("here")
         if isinstance(msg, NoteOn):
             print("Note On")
             latest_note = msg.note
@@ -75,6 +84,7 @@ while True:
             output(scale_note(msg.velocity), velocity_pins)
             print("playing note: ", msg.note)
             print("at velocity: ", msg.velocity)
+            print("msg channel: ", msg.channel)
         elif isinstance(msg, NoteOff):
             print("NoteOff")
             print(msg.note)
