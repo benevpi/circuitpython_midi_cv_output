@@ -6,3 +6,6 @@ This converts midi to *A* voltage (not necessarily the control voltage you want)
 There might be blips as the values change. They'll be very high frequency, so a low-pass filter should iron them out.
 
 Note -- as yet, this is untested
+
+# Voltage controlled oscillator also here
+This currently does saw-tooth output, but it should be fairly trivial to shift this to different wave forms. It's currently outputting over a 7-bit R/2R ladder, but would be good  to try it with PWM.
